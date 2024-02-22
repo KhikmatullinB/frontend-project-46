@@ -1,7 +1,12 @@
+#!/usr/bin/env node
 import { Command } from "commander";
 
 const program = new Command();
+
 program
   .description("Compares two configuration files and shows a difference.")
-  .version("-v, --version", "-h, --help");
+  .version(0.1)
+  .option("-f, --format [type]", "output format")
+  .argument("<filepath>")
+  .argument("<filepath>");
 program.parse();
