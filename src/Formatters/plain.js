@@ -1,6 +1,6 @@
 import _ from "lodash";
 
-const prepareValue = (value) => {
+const checkedValue = (value) => {
   if (_.isObject(value)) {
     return "[complex value]";
   }
@@ -10,34 +10,31 @@ const prepareValue = (value) => {
   return value;
 };
 
-const formatPlain = (diff, path = []) => {
-  const filteredDiff = diff.filter((item) => item.state !== "unchanged");
-  const output = filteredDiff
-    .map((item) => {
-      const newPath = path.concat(item.key);
-      const node = newPath.join(".");
-      switch (item.state) {
-        case "removed":
-          return `Property '${node}' was removed`;
-
-        case "added": {
-          const val = prepareValue(item.value);
-          return `Property '${node}' was added with value: ${val}`;
+const getFormatPlain = (diffTree) => {
+  const iter = (tree, before = "") => {
+    const plain = tree
+      .filter((status) => status.type !== "unchanged")
+      .map((node) => {
+        const current = `${before}${node.key}`;
+        switch (node.type) {
+          case "added":
+            return `Property '${current}' was added with value: ${checkedValue(
+              node.value
+            )}`;
+          case "removed":
+            return `Property '${current}' was removed`;
+          case "changed":
+            return `Property '${current}' was updated. From ${checkedValue(
+              node.value1
+            )} to ${checkedValue(node.value2)}`;
+          case "nested":
+            return iter(node.children, `${current}.`);
+          default:
+            throw new Error(`This type doesn't exist: ${node.type}`);
         }
-
-        case "updated": {
-          const oldVal = prepareValue(item.value.oldValue);
-          const newVal = prepareValue(item.value.newValue);
-          return `Property '${node}' was updated. From ${oldVal} to ${newVal}`;
-        }
-
-        default:
-          return formatPlain(item.value, newPath);
-      }
-    })
-    .join("\n");
-
-  return output;
+      });
+    return plain.join("\n");
+  };
+  return iter(diffTree);
 };
-
-export default formatPlain;
+export default getFormatPlain;

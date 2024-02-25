@@ -1,26 +1,20 @@
-import { readFileSync } from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { describe, expect, test } from "@jest/globals";
+import readFile from "../src/paths.js";
+import genDiff from "../src/index.js";
 
-import parser from '../src/index.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const getFixturePath = (filename) => path.join(__dirname, '..', '__fixtures__', filename);
-
-test('file json', () => {
-  const filename1 = getFixturePath('file1.json');
-  const filename2 = getFixturePath('file2.json');
-  const resultname = getFixturePath('file_result.txt');
-  const result = readFileSync(resultname, 'utf8');
-  expect(parser(filename1, filename2)).toBe(result);
-});
-
-test('file yml', () => {
-  const filename1 = getFixturePath('file1.yml');
-  const filename2 = getFixturePath('file2.yml');
-  const resultname = getFixturePath('file_result.txt');
-  const result = readFileSync(resultname, 'utf8');
-  expect(parser(filename1, filename2)).toBe(result);
+describe("check output", () => {
+  const testFormats = [
+    ["file1.json", "file2.json", "stylishFormatTest.txt"],
+    ["file1.yaml", "file2.yaml", "stylishFormatTest.txt", "stylish"],
+    ["file1.json", "file2.yaml", "plainFormatTest.txt", "plain"],
+    ["file1.yaml", "file2.json", "jsonFormatTest.txt", "json"],
+  ];
+  test.each(testFormats)(
+    "formatters work",
+    (file1, file2, expectedFile, format = "stylish") => {
+      const result = genDiff(file1, file2, format);
+      const expected = readFile(expectedFile);
+      expect(result).toEqual(expected);
+    }
+  );
 });

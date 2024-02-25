@@ -1,8 +1,15 @@
 import yaml from "js-yaml";
 
-const parse = (data, format) => {
-  const parsers = { yml: yaml.load, yaml: yaml.load, json: JSON.parse };
-  return parsers[format](data);
+const parse = (content, extname) => {
+  switch (extname) {
+    case "json":
+      return JSON.parse(content);
+    case "yml":
+    case "yaml":
+      return yaml.load(content);
+    default:
+      throw new Error(`Error: "${extname}" - this extname is not supported`);
+  }
 };
 
 export default parse;

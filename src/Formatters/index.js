@@ -1,15 +1,18 @@
-import formatStylish from "./stylish.js";
-import formatJson from "./json.js";
+import getFormatJson from "./json.js";
 import formatPlain from "./plain.js";
+import getFormatStylish from "./stylish.js";
 
-const getFormatting = (diff, formatName) => {
-  const formatters = {
-    plain: formatPlain,
-    json: formatJson,
-    stylish: formatStylish,
-  };
-  const formatter = formatters[formatName];
-  return formatter(diff);
+const getFormat = (abstractSyntaxTree, format) => {
+  switch (format) {
+    case "json":
+      return getFormatJson(abstractSyntaxTree);
+    case "plain":
+      return formatPlain(abstractSyntaxTree);
+    case "stylish":
+      return getFormatStylish(abstractSyntaxTree);
+    default:
+      throw new Error(`Error: "${format}" - this format is not supported`);
+  }
 };
 
-export default getFormatting;
+export default getFormat;

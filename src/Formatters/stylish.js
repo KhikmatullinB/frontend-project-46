@@ -1,56 +1,47 @@
 import _ from "lodash";
 
-const padLine = (depth) => `  ${" ".repeat(4).repeat(depth - 1)}`;
-const padBracket = (depth) => `${" ".repeat(4).repeat(depth)}`;
-const getLine = (key, value, char, depth) =>
-  `${padLine(depth)}${char}${key}: ${value}`;
-const wrapBrackets = (body, depth) => `{\n${body}\n${padBracket(depth)}}`;
+const spacesCount = 4;
+const indent = (depth) => " ".repeat(depth * spacesCount - 2);
 
-const prepareValue = (value, depth) => {
-  if (!_.isObject(value)) {
-    return value;
+const stringify = (data, depth = 1) => {
+  if (!_.isObject(data)) {
+    return `${data}`;
   }
-  const entries = Object.entries(value);
-  const items = entries.map(([key, val]) =>
-    getLine(key, prepareValue(val, depth + 1), "  ", depth + 1)
-  );
-  const body = items.join("\n");
-  return wrapBrackets(body, depth);
-};
-
-const parseDiff = (diff, depth) => {
-  const items = diff.flatMap(({ key, value, state }) => {
-    const chars = { added: "+ ", removed: "- ", unchanged: "  " };
-    if (state === "updated") {
-      return [
-        getLine(
-          key,
-          prepareValue(value.oldValue, depth + 1),
-          chars.removed,
-          depth + 1
-        ),
-        getLine(
-          key,
-          prepareValue(value.newValue, depth + 1),
-          chars.added,
-          depth + 1
-        ),
-      ];
-    }
-    if (state === "complex") {
-      return getLine(key, parseDiff(value, depth + 1), "  ", depth + 1);
-    }
-    return getLine(
-      key,
-      prepareValue(value, depth + 1),
-      chars[state],
-      depth + 1
-    );
+  const keys = Object.entries(data);
+  const strings = keys.map(([key, value]) => {
+    const checkedValue = stringify(value, depth + 1);
+    return `${indent(depth + 1)}  ${key}: ${checkedValue}`;
   });
-  const body = items.join("\n");
-  return wrapBrackets(body, depth);
+  return `{\n${strings.join("\n")}\n  ${indent(depth)}}`;
 };
 
-const formatStylish = (diff) => parseDiff(diff, 0);
+const getFormatStylish = (diffTree) => {
+  const iter = (tree, depth = 1) =>
+    tree.map((node) => {
+      const createStrWithSing = (value, sign) =>
+        `${indent(depth)}${sign} ${node.key}: ${stringify(value, depth)}\n`;
+      switch (node.type) {
+        case "added":
+          return createStrWithSing(node.value, "+");
+        case "removed":
+          return createStrWithSing(node.value, "-");
+        case "unchanged":
+          return createStrWithSing(node.value, " ");
+        case "changed":
+          return `${createStrWithSing(node.value1, "-")}${createStrWithSing(
+            node.value2,
+            "+"
+          )}`;
+        case "nested":
+          return `${indent(depth)}  ${node.key}: {\n${iter(
+            node.children,
+            depth + 1
+          ).join("")}${indent(depth)}  }\n`;
+        default:
+          throw new Error(`This type doesn't exist: ${node.type}`);
+      }
+    });
+  return `{\n${iter(diffTree).join("")}}`;
+};
 
-export default formatStylish;
+export default getFormatStylish;
