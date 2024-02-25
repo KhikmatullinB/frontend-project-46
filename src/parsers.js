@@ -1,11 +1,11 @@
-import yaml from "js-yaml";
+import yaml from 'js-yaml';
 
 const parse = (content, extname) => {
   switch (extname) {
-    case "json":
+    case 'json':
       return JSON.parse(content);
-    case "yml":
-    case "yaml":
+    case 'yml':
+    case 'yaml':
       return yaml.load(content);
     default:
       throw new Error(`Error: "${extname}" - this extname is not supported`);
