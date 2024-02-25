@@ -5,9 +5,9 @@ import genDiff from "../src/index.js";
 describe("check output", () => {
   const testFormats = [
     ["file1.json", "file2.json", "stylishFormatTest.txt"],
-    ["file1.yaml", "file2.yaml", "stylishFormatTest.txt", "stylish"],
-    ["file1.json", "file2.yaml", "plainFormatTest.txt", "plain"],
-    ["file1.yaml", "file2.json", "jsonFormatTest.txt", "json"],
+    ["file1.yml", "file2.yml", "stylishFormatTest.txt", "stylish"],
+    ["file1.json", "file2.yml", "plainFormatTest.txt", "plain"],
+    ["file1.yml", "file2.json", "jsonFormatTest.txt", "json"],
   ];
   test.each(testFormats)(
     "formatters work",
