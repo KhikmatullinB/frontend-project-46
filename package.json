@@ -2,7 +2,7 @@
   "name": "@hexlet/code",
   "version": "1.0.0",
   "type": "module",
-  "description": "My second hexlet-project",
+  "description": "The Difference finder shows you the differences between two files. Availible formats: json,yaml,yaml",
   "bin": {
     "gendiff": "bin/gendiff.js"
   },

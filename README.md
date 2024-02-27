@@ -1,4 +1,4 @@
-Difference Generator
+<h1> Difference Finder:</h1>
 
 ### Hexlet tests and linter status:
 
